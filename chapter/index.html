@@ -1,1 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Drug Metabolism & Pharmacogenomics — _exp_i_ labs</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+  :root {
+    --ink: #0f0f0d;
+    --ink-muted: #5a5a54;
+    --ink-faint: #b0afa8;
+    --paper: #f7f5f0;
+    --rule: #dddbd4;
+    --accent: #1a1a16;
+    --mono: 'Courier New', Courier, monospace;
+    --serif: Georgia, 'Times New Roman', serif;
+    --sans: system-ui, -apple-system, sans-serif;
+  }
+
+  html { font-size: 16px; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* NAV — matches main site feel */
+  nav {
+    padding: 1.5rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  nav .wordmark {
+    font-family: var(--mono);
+    font-size: 0.85rem;
+    color: var(--ink);
+    text-decoration: none;
+    letter-spacing: -0.02em;
+  }
+
+  nav .wordmark:hover { opacity: 0.6; }
+
+  nav .nav-links {
+    display: flex;
+    gap: 2rem;
+    list-style: none;
+  }
+
+  nav .nav-links a {
+    font-size: 0.8rem;
+    color: var(--ink-muted);
+    text-decoration: none;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  nav .nav-links a:hover { color: var(--ink); }
+  nav .nav-links a.active { color: var(--ink); border-bottom: 1px solid var(--ink); }
+
+  /* HERO */
+  .hero {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 5rem 2rem 3rem;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .hero-kicker {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    color: var(--ink-muted);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+  }
+
+  .hero h1 {
+    font-family: var(--serif);
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    font-weight: 400;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    max-width: 720px;
+    margin-bottom: 2rem;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--ink-muted);
+  }
+
+  .hero-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 2rem;
+    font-size: 0.8rem;
+    color: var(--ink-muted);
+    font-family: var(--mono);
+    margin-bottom: 2rem;
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 0.6rem 1.2rem;
+    text-decoration: none;
+    border: 1px solid var(--ink);
+    color: var(--ink);
+    background: transparent;
+    transition: background 0.15s, color 0.15s;
+  }
+
+  .btn:hover { background: var(--ink); color: var(--paper); }
+  .btn.secondary { border-color: var(--rule); color: var(--ink-muted); }
+  .btn.secondary:hover { border-color: var(--ink-muted); background: transparent; color: var(--ink); }
+
+  /* MAIN LAYOUT */
+  .main {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 2rem;
+  }
+
+  /* LOCUS STATEMENT — the buzzword section */
+  .locus {
+    padding: 4rem 0 3rem;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .locus-headline {
+    font-family: var(--serif);
+    font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+    font-weight: 400;
+    line-height: 1.5;
+    max-width: 640px;
+    margin-bottom: 1.5rem;
+  }
+
+  .locus-headline strong {
+    font-weight: 400;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    text-decoration-thickness: 1px;
+  }
+
+  .locus-body {
+    font-size: 0.92rem;
+    color: var(--ink-muted);
+    max-width: 580px;
+    line-height: 1.75;
+  }
+
+  /* ABSTRACT */
+  .abstract {
+    padding: 3rem 0;
+    border-bottom: 1px solid var(--rule);
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    gap: 2rem;
+  }
+
+  .section-tag {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    padding-top: 0.25rem;
+  }
+
+  .abstract-text {
+    font-size: 0.92rem;
+    line-height: 1.8;
+    color: var(--ink-muted);
+  }
+
+  /* TOPICS */
+  .topics {
+    padding: 3rem 0;
+    border-bottom: 1px solid var(--rule);
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    gap: 2rem;
+  }
+
+  .topics-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+  }
+
+  .topic-cell {
+    background: var(--paper);
+    padding: 1.25rem 1rem;
+  }
+
+  .topic-num {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: var(--ink-faint);
+    margin-bottom: 0.5rem;
+  }
+
+  .topic-title {
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin-bottom: 0.35rem;
+    color: var(--ink);
+  }
+
+  .topic-desc {
+    font-size: 0.77rem;
+    color: var(--ink-muted);
+    line-height: 1.55;
+  }
+
+  /* WORKFLOW DIAGRAM — text-based */
+  .workflow {
+    padding: 3rem 0;
+    border-bottom: 1px solid var(--rule);
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    gap: 2rem;
+  }
+
+  .flow-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .flow-step {
+    display: grid;
+    grid-template-columns: 28px 1fr;
+    gap: 1rem;
+    padding: 1rem 0;
+    border-top: 1px solid var(--rule);
+  }
+
+  .flow-step:last-child { border-bottom: 1px solid var(--rule); }
+
+  .flow-arrow {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    color: var(--ink-faint);
+    padding-top: 0.15rem;
+  }
+
+  .flow-content {}
+
+  .flow-label {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 0.25rem;
+  }
+
+  .flow-text {
+    font-size: 0.85rem;
+    color: var(--ink-muted);
+    line-height: 1.5;
+  }
+
+  /* CITATION */
+  .citation {
+    padding: 3rem 0;
+    border-bottom: 1px solid var(--rule);
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    gap: 2rem;
+  }
+
+  .citation-block {
+    background: white;
+    border: 1px solid var(--rule);
+    padding: 1.25rem 1.5rem;
+  }
+
+  .citation-text {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    line-height: 1.8;
+    color: var(--ink-muted);
+    margin-bottom: 1rem;
+  }
+
+  .citation-text span {
+    color: var(--ink);
+  }
+
+  .copy-row {
+    display: flex;
+    gap: 0.75rem;
+  }
+
+  .copy-btn {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 0.4rem 0.8rem;
+    border: 1px solid var(--rule);
+    background: transparent;
+    color: var(--ink-muted);
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s;
+  }
+
+  .copy-btn:hover { border-color: var(--ink-muted); color: var(--ink); }
+  .copy-btn.copied { border-color: var(--ink); color: var(--ink); }
+
+  /* AUTHORS */
+  .authors {
+    padding: 3rem 0;
+    border-bottom: 1px solid var(--rule);
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    gap: 2rem;
+  }
+
+  .authors-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .author {
+    display: grid;
+    grid-template-columns: 40px 1fr;
+    gap: 1rem;
+    align-items: start;
+  }
+
+  .author-initials {
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--rule);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: var(--ink-muted);
+    flex-shrink: 0;
+  }
+
+  .author-name {
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-bottom: 0.2rem;
+  }
+
+  .author-affil {
+    font-size: 0.78rem;
+    color: var(--ink-muted);
+    font-family: var(--mono);
+  }
+
+  /* FOOTER */
+  footer {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 2rem 2rem 3rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  footer .doi {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--ink-faint);
+  }
+
+  footer .back {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--ink-muted);
+    text-decoration: none;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  footer .back:hover { color: var(--ink); }
+
+  /* RESPONSIVE */
+  @media (max-width: 600px) {
+    nav { padding: 1rem; flex-direction: column; gap: 1rem; }
+    .hero { padding: 3rem 1rem 2rem; }
+    .main { padding: 0 1rem; }
+    .abstract, .topics, .workflow, .citation, .authors {
+      grid-template-columns: 1fr;
+      gap: 0.75rem;
+    }
+    .topics-grid { grid-template-columns: 1fr; }
+    footer { padding: 1.5rem 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="wordmark">_exp_i_ labs</a>
+  <ul class="nav-links">
+    <li><a href="/">Home</a></li>
+    <li><a href="/chapter.html" class="active">Chapter</a></li>
+  </ul>
+</nav>
+
+<div class="hero">
+  <p class="hero-kicker">Publication · 2020 · Springer</p>
+  <h1>Fundamentals of Drug Metabolism and Pharmacogenomics <em>Within a Learning Healthcare System Workflow Perspective</em></h1>
+  <div class="hero-meta">
+    <span>Breitenstein &amp; Crowgey</span>
+    <span>In: Personalized and Precision Medicine Informatics</span>
+    <span>pp. 59–80</span>
+    <span>922 accesses</span>
+  </div>
+  <div class="hero-actions">
+    <a href="https://link.springer.com/chapter/10.1007/978-3-030-18626-5_5" target="_blank" class="btn">Read on Springer ↗</a>
+    <a href="#cite" class="btn secondary">Cite this chapter</a>
+  </div>
+</div>
+
+<div class="main">
+
+  <section class="locus">
+    <p class="locus-headline">
+      Pharmacogenomics is only as useful as the system that delivers it.<br>
+      This chapter frames the field through the lens of a
+      <strong>learning healthcare system</strong> —
+      where clinical data feeds the model, and the model feeds the clinic.
+    </p>
+    <p class="locus-body">
+      The learning healthcare system is a framework in which evidence is continuously generated from real-world patient data and fed back into clinical practice. Pharmacogenomics — the study of how genetic variation shapes drug response — is a natural fit for this loop. Our chapter traces the informatics workflow end-to-end: from genotype to actionable clinical recommendation, and from clinical outcomes back to knowledge advancement.
+    </p>
+  </section>
+
+  <section class="abstract">
+    <p class="section-tag">Abstract</p>
+    <p class="abstract-text">
+      This chapter introduces fundamental concepts of pharmacogenomics, including drug metabolism, and provides an informatics workflow-based perspective inspired by a learning healthcare system framework. Our intent is that the reader sees pharmacogenomics as a foundation of precision medicine, which is reliant upon informatics to deliver actionable patient-tailored knowledge at the point of care. Further, pharmacogenomics knowledge is poised to be further developed so as to be amenable to multi-drug comorbid disease treatment necessitated by precision medicine practice. The methodologic considerations highlighted within this workflow-based perspective encompass end-to-end forward and reverse translational informatics activities, designed to both appropriately deploy existing pharmacogenomics knowledge, as well as contribute to its advancement by harnessing insights from real-world data.
+    </p>
+  </section>
+
+  <section class="topics">
+    <p class="section-tag">Topics covered</p>
+    <div class="topics-grid">
+      <div class="topic-cell">
+        <p class="topic-num">01</p>
+        <p class="topic-title">Drug metabolism</p>
+        <p class="topic-desc">Phase I/II enzymes, CYP450 superfamily, metabolizer phenotypes, and their clinical consequences.</p>
+      </div>
+      <div class="topic-cell">
+        <p class="topic-num">02</p>
+        <p class="topic-title">Pharmacogenomics fundamentals</p>
+        <p class="topic-desc">From Mendelian genetics through GWAS — the historical arc of the field and its key milestones.</p>
+      </div>
+      <div class="topic-cell">
+        <p class="topic-num">03</p>
+        <p class="topic-title">Informatics workflow</p>
+        <p class="topic-desc">NGS pipelines, variant calling, QC, annotation, and translational informatics considerations.</p>
+      </div>
+      <div class="topic-cell">
+        <p class="topic-num">04</p>
+        <p class="topic-title">Learning healthcare system</p>
+        <p class="topic-desc">Bidirectional evidence flow: deploying PGx knowledge clinically while generating new insights from outcomes.</p>
+      </div>
+      <div class="topic-cell">
+        <p class="topic-num">05</p>
+        <p class="topic-title">Precision medicine delivery</p>
+        <p class="topic-desc">EHR integration, point-of-care decision support, CPIC guidelines, and PharmCAT annotation.</p>
+      </div>
+      <div class="topic-cell">
+        <p class="topic-num">06</p>
+        <p class="topic-title">Machine learning applications</p>
+        <p class="topic-desc">Automated ML, feature selection, and phenotyping from real-world clinical and genomic data.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="workflow">
+    <p class="section-tag">The loop</p>
+    <div class="flow-steps">
+      <div class="flow-step">
+        <span class="flow-arrow">→</span>
+        <div class="flow-content">
+          <p class="flow-label">Forward translation</p>
+          <p class="flow-text">Genotype data is processed through NGS pipelines, annotated against resources like PharmGKB and CPIC, and delivered as actionable pharmacogenomic guidance at the point of care.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <span class="flow-arrow">→</span>
+        <div class="flow-content">
+          <p class="flow-label">Clinical deployment</p>
+          <p class="flow-text">Patient-tailored drug-gene interactions surface within the EHR workflow — informing prescribing decisions for multi-drug, comorbid disease scenarios in precision medicine practice.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <span class="flow-arrow">↩</span>
+        <div class="flow-content">
+          <p class="flow-label">Reverse translation</p>
+          <p class="flow-text">Real-world outcomes are captured, phenotyped from the EHR, and fed back into the model — closing the loop and expanding the pharmacogenomics knowledge base.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="citation" id="cite">
+    <p class="section-tag">Cite</p>
+    <div>
+      <div class="citation-block">
+        <p class="citation-text">
+          <span>Breitenstein, M.K.</span>, Crowgey, E.L. (2020).
+          Fundamentals of Drug Metabolism and Pharmacogenomics Within a Learning Healthcare System Workflow Perspective.
+          In: <span>Personalized and Precision Medicine Informatics.</span>
+          Health Informatics. Springer, Cham. pp. 59–80.
+          https://doi.org/10.1007/978-3-030-18626-5_5
+        </p>
+        <div class="copy-row">
+          <button class="copy-btn" onclick="copyAPA(this)">Copy APA</button>
+          <button class="copy-btn" onclick="copyBib(this)">Copy BibTeX</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="authors">
+    <p class="section-tag">Authors</p>
+    <div class="authors-list">
+      <div class="author">
+        <div class="author-initials">MKB</div>
+        <div>
+          <p class="author-name">Matthew K. Breitenstein, Ph.D., M.S.</p>
+          <p class="author-affil">Founder, _exp_i_ labs</p>
+        </div>
+      </div>
+      <div class="author">
+        <div class="author-initials">ELC</div>
+        <div>
+          <p class="author-name">Erin L. Crowgey, Ph.D.</p>
+          <p class="author-affil">Nemours Biomedical Research</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  <span class="doi">DOI: 10.1007/978-3-030-18626-5_5</span>
+  <a href="/" class="back">← _exp_i_ labs</a>
+</footer>
+
+<script>
+  const APA = 'Breitenstein, M. K., & Crowgey, E. L. (2020). Fundamentals of drug metabolism and pharmacogenomics within a learning healthcare system workflow perspective. In Personalized and Precision Medicine Informatics (pp. 59–80). Springer, Cham. https://doi.org/10.1007/978-3-030-18626-5_5';
+
+  const BIB = `@incollection{breitenstein2020pharmacogenomics,
+  author    = {Breitenstein, Matthew K. and Crowgey, Erin L.},
+  title     = {Fundamentals of Drug Metabolism and Pharmacogenomics Within a Learning Healthcare System Workflow Perspective},
+  booktitle = {Personalized and Precision Medicine Informatics},
+  series    = {Health Informatics},
+  pages     = {59--80},
+  year      = {2020},
+  publisher = {Springer},
+  address   = {Cham},
+  doi       = {10.1007/978-3-030-18626-5_5}
+}`;
+
+  function flash(btn) {
+    btn.classList.add('copied');
+    const orig = btn.textContent;
+    btn.textContent = 'Copied';
+    setTimeout(() => { btn.classList.remove('copied'); btn.textContent = orig; }, 1800);
+  }
+
+  function copyAPA(btn) { navigator.clipboard.writeText(APA).then(() => flash(btn)); }
+  function copyBib(btn) { navigator.clipboard.writeText(BIB).then(() => flash(btn)); }
+</script>
+
+</body>
+</html>
