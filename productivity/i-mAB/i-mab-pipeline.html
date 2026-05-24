@@ -1,0 +1,1271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>i-mAB Pipeline — Le et al. 2018</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Figtree:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink: #0f1117;
+    --ink-soft: #3a3d48;
+    --ink-muted: #7a7f8e;
+    --surface: #faf9f7;
+    --surface-alt: #f0ede8;
+    --accent: #1a4a8a;
+    --accent-light: #e8eef8;
+    --accent-warm: #b85c2a;
+    --accent-warm-light: #fdf0e8;
+    --green: #1a6640;
+    --green-light: #e8f5ed;
+    --purple: #5a2d82;
+    --purple-light: #f0eaf8;
+    --border: #ddd9d2;
+    --radius: 6px;
+
+    --cd20: #1a4a8a;
+    --cd20-bg: #e8eef8;
+    --cd22: #1a6640;
+    --cd22-bg: #e8f5ed;
+    --cd30: #b85c2a;
+    --cd30-bg: #fdf0e8;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Figtree', sans-serif;
+    background: var(--surface);
+    color: var(--ink);
+    line-height: 1.7;
+    font-size: 16px;
+  }
+
+  /* ── HEADER ── */
+  .site-header {
+    border-bottom: 1px solid var(--border);
+    padding: 0.75rem 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: white;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .lab-wordmark {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    color: var(--accent);
+    text-decoration: none;
+    border: 1px solid var(--accent);
+    padding: 4px 10px;
+    border-radius: 3px;
+  }
+  .nav-links { display: flex; gap: 1.5rem; margin-left: auto; }
+  .nav-links a {
+    font-size: 13px;
+    color: var(--ink-soft);
+    text-decoration: none;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+  }
+  .nav-links a:hover { color: var(--accent); }
+  .nav-links a.active { color: var(--accent); border-bottom: 2px solid var(--accent); padding-bottom: 2px; }
+
+  /* ── HERO ── */
+  .hero {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 4rem 2rem 2.5rem;
+  }
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 1.5rem;
+    font-size: 13px;
+    color: var(--ink-muted);
+    font-family: 'DM Mono', monospace;
+  }
+  .breadcrumb a { color: var(--accent); text-decoration: none; }
+  .breadcrumb a:hover { text-decoration: underline; }
+  .preprint-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--purple);
+    background: var(--purple-light);
+    border: 1px solid #c8b0e0;
+    padding: 4px 12px;
+    border-radius: 2px;
+    margin-bottom: 1.25rem;
+  }
+  .preprint-badge::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--purple);
+    display: inline-block;
+  }
+  .hero h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(26px, 4.5vw, 40px);
+    line-height: 1.2;
+    color: var(--ink);
+    margin-bottom: 1rem;
+    max-width: 780px;
+  }
+  .hero h1 em { font-style: italic; color: var(--accent); }
+  .authors {
+    font-size: 14px;
+    color: var(--ink-muted);
+    margin-bottom: 0.5rem;
+  }
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    padding: 9px 16px;
+    border-radius: var(--radius);
+    text-decoration: none;
+    border: 1.5px solid transparent;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: 'Figtree', sans-serif;
+  }
+  .btn-primary { background: var(--accent); color: white; border-color: var(--accent); }
+  .btn-primary:hover { background: #153d75; }
+  .btn-ghost { background: transparent; color: var(--ink-soft); border-color: var(--border); }
+  .btn-ghost:hover { border-color: var(--ink-muted); background: var(--surface-alt); }
+
+  hr.divider { border: none; border-top: 1px solid var(--border); }
+
+  /* ── PAGE TABS ── */
+  .tabs-bar {
+    background: white;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    gap: 0;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 2rem;
+  }
+  .tab {
+    font-size: 13px;
+    font-weight: 600;
+    font-family: 'Figtree', sans-serif;
+    padding: 14px 20px 12px;
+    border: none;
+    background: transparent;
+    color: var(--ink-muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: all 0.15s;
+    letter-spacing: 0.02em;
+  }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .tab:hover:not(.active) { color: var(--ink-soft); }
+
+  /* ── LAYOUT ── */
+  .main-wrap {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 3rem 2rem;
+    display: grid;
+    grid-template-columns: 1fr 240px;
+    gap: 3rem;
+    align-items: start;
+  }
+  @media (max-width: 700px) {
+    .main-wrap { grid-template-columns: 1fr; }
+    .sidebar { order: -1; }
+  }
+
+  /* ── TAB PANELS ── */
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ── TYPOGRAPHY ── */
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .content section { margin-bottom: 2.5rem; }
+  .content p { color: var(--ink-soft); margin-bottom: 1rem; font-size: 15px; }
+  .content p:last-child { margin-bottom: 0; }
+  .kw {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    background: var(--accent-light);
+    color: var(--accent);
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-weight: 500;
+  }
+  .kw-warm { background: var(--accent-warm-light); color: var(--accent-warm); }
+  .kw-green { background: var(--green-light); color: var(--green); }
+  .kw-purple { background: var(--purple-light); color: var(--purple); }
+
+  /* ── ABSTRACT BOX ── */
+  .abstract-box {
+    background: white;
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--accent);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  .abstract-box p { font-size: 15px; color: var(--ink-soft); line-height: 1.75; margin: 0; }
+
+  /* ── PIPELINE DIAGRAM ── */
+  .pipeline-diagram {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+    margin-bottom: 1rem;
+  }
+  .pipeline-node {
+    display: grid;
+    grid-template-columns: 56px 1fr;
+    gap: 0 1rem;
+    position: relative;
+  }
+  .pipeline-node:not(:last-child)::before {
+    content: '';
+    position: absolute;
+    left: 27px;
+    top: 56px;
+    height: calc(100% - 56px);
+    width: 2px;
+    background: var(--border);
+  }
+  .node-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+    border: 2px solid var(--border);
+    background: white;
+    z-index: 1;
+    position: relative;
+  }
+  .node-icon.stage-a { border-color: var(--accent); background: var(--accent-light); }
+  .node-icon.stage-b { border-color: var(--purple); background: var(--purple-light); }
+  .node-icon.stage-c { border-color: var(--green); background: var(--green-light); }
+  .node-icon.stage-d { border-color: var(--accent-warm); background: var(--accent-warm-light); }
+  .node-body { padding: 8px 0 2rem 0; }
+  .node-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    margin-bottom: 4px;
+  }
+  .node-title { font-weight: 700; font-size: 15px; color: var(--ink); margin-bottom: 6px; }
+  .node-desc { font-size: 13px; color: var(--ink-soft); line-height: 1.6; }
+  .node-metric {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 8px;
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 5px 10px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--ink-soft);
+  }
+  .node-metric strong { color: var(--ink); }
+
+  /* ── CD CARDS ── */
+  .cd-tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .cd-tab {
+    padding: 9px 16px;
+    font-size: 13px;
+    font-weight: 700;
+    font-family: 'DM Mono', monospace;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -1px;
+    transition: all 0.15s;
+    color: var(--ink-muted);
+  }
+  .cd-tab[data-cd="CD20"].active { color: var(--cd20); border-bottom-color: var(--cd20); }
+  .cd-tab[data-cd="CD22"].active { color: var(--cd22); border-bottom-color: var(--cd22); }
+  .cd-tab[data-cd="CD30"].active { color: var(--cd30); border-bottom-color: var(--cd30); }
+  .cd-tab:hover:not(.active) { color: var(--ink-soft); }
+
+  .cd-panel { display: none; padding: 1.5rem 0 0; }
+  .cd-panel.active { display: block; }
+
+  .cd-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+  .cd-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 22px;
+    font-weight: 500;
+    padding: 8px 14px;
+    border-radius: var(--radius);
+    border: 2px solid;
+    line-height: 1;
+  }
+  .cd-badge.cd20 { color: var(--cd20); border-color: var(--cd20); background: var(--cd20-bg); }
+  .cd-badge.cd22 { color: var(--cd22); border-color: var(--cd22); background: var(--cd22-bg); }
+  .cd-badge.cd30 { color: var(--cd30); border-color: var(--cd30); background: var(--cd30-bg); }
+  .cd-meta { flex: 1; }
+  .cd-gene-name { font-size: 13px; color: var(--ink-muted); font-family: 'DM Mono', monospace; }
+  .cd-tagline { font-size: 14px; color: var(--ink-soft); margin-top: 4px; }
+
+  .model-metrics {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+  }
+  .metric-cell {
+    background: white;
+    padding: 1rem;
+    text-align: center;
+  }
+  .metric-val {
+    font-family: 'DM Serif Display', serif;
+    font-size: 24px;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .metric-label { font-size: 10px; font-family: 'DM Mono', monospace; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-muted); }
+
+  /* ── GENE TABLES ── */
+  .gene-wrap {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-bottom: 1.25rem;
+  }
+  .gene-table-head {
+    background: var(--surface-alt);
+    padding: 8px 12px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    border-bottom: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: 100px 1fr auto auto;
+    gap: 12px;
+    align-items: center;
+  }
+  .gene-row {
+    display: grid;
+    grid-template-columns: 100px 1fr auto auto;
+    gap: 12px;
+    align-items: center;
+    padding: 9px 12px;
+    border-bottom: 1px solid #f0ede8;
+    transition: background 0.1s;
+  }
+  .gene-row:last-child { border-bottom: none; }
+  .gene-row:hover { background: var(--surface-alt); }
+  .gene-name {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink);
+  }
+  .gene-desc { font-size: 12px; color: var(--ink-muted); }
+  .gene-dir {
+    font-size: 11px;
+    font-weight: 700;
+    font-family: 'DM Mono', monospace;
+    padding: 2px 8px;
+    border-radius: 3px;
+    white-space: nowrap;
+  }
+  .dir-up { color: var(--cd22); background: var(--cd22-bg); }
+  .dir-dn { color: var(--cd30); background: var(--cd30-bg); }
+  .gene-pval {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-muted);
+    text-align: right;
+    white-space: nowrap;
+  }
+  .gene-pval.sig { color: var(--accent); font-weight: 500; }
+
+  /* ── PATHWAY BADGES ── */
+  .pathway-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 1rem;
+  }
+  .pathway-row {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    padding: 10px 12px;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    transition: background 0.1s;
+  }
+  .pathway-row:hover { background: var(--surface-alt); }
+  .pathway-chip {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 3px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .chip-both { background: var(--purple-light); color: var(--purple); }
+  .chip-cd22 { background: var(--cd22-bg); color: var(--cd22); }
+  .chip-cd30 { background: var(--cd30-bg); color: var(--cd30); }
+  .chip-cd20 { background: var(--cd20-bg); color: var(--cd20); }
+  .pathway-name { font-weight: 600; font-size: 14px; color: var(--ink); margin-bottom: 3px; }
+  .pathway-genes { font-size: 12px; color: var(--ink-muted); font-family: 'DM Mono', monospace; }
+
+  /* ── REPLICATION TABLE ── */
+  .rep-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-bottom: 1rem;
+  }
+  .rep-table thead th {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    font-weight: 500;
+    text-align: left;
+    padding: 9px 12px;
+    background: var(--surface-alt);
+    border-bottom: 1px solid var(--border);
+  }
+  .rep-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    color: var(--ink-soft);
+  }
+  .rep-table tr:last-child td { border-bottom: none; }
+  .rep-table tr:hover td { background: var(--surface-alt); }
+  .rep-table td:first-child { font-family: 'DM Mono', monospace; font-weight: 600; color: var(--ink); }
+  .rep-table td.pval-sig { font-family: 'DM Mono', monospace; color: var(--accent); font-weight: 500; }
+  .rep-table td.corr { font-family: 'DM Mono', monospace; }
+  .cd-chip {
+    display: inline-block;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 3px;
+    margin-right: 4px;
+  }
+  .chip-inline-20 { color: var(--cd20); background: var(--cd20-bg); }
+  .chip-inline-22 { color: var(--cd22); background: var(--cd22-bg); }
+  .chip-inline-30 { color: var(--cd30); background: var(--cd30-bg); }
+
+  /* ── SIDEBAR ── */
+  .sidebar { position: sticky; top: 80px; }
+  .sidebar-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+  }
+  .sidebar-card h3 {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 0;
+    font-size: 13px;
+    color: var(--ink-soft);
+    text-decoration: none;
+    border-bottom: 1px solid var(--border);
+    font-weight: 500;
+    transition: color 0.1s;
+  }
+  .sidebar-link:last-child { border-bottom: none; }
+  .sidebar-link:hover { color: var(--accent); }
+  .sidebar-link-icon {
+    width: 28px; height: 28px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+  .icon-blue { background: var(--accent-light); }
+  .icon-warm { background: var(--accent-warm-light); }
+  .icon-green { background: var(--green-light); }
+  .icon-purple { background: var(--purple-light); }
+
+  .toc-link {
+    display: block;
+    padding: 6px 0;
+    font-size: 13px;
+    color: var(--ink-soft);
+    text-decoration: none;
+    border-bottom: 1px solid var(--border);
+    transition: color 0.1s;
+  }
+  .toc-link:last-child { border-bottom: none; }
+  .toc-link:hover { color: var(--accent); }
+  .toc-link.sub { padding-left: 12px; font-size: 12px; color: var(--ink-muted); }
+  .toc-link.sub:hover { color: var(--accent); }
+
+  .highlight-box {
+    background: var(--accent-light);
+    border: 1px solid #c0cfe8;
+    border-radius: var(--radius);
+    padding: 1rem;
+    margin-bottom: 1rem;
+    font-size: 13px;
+    color: var(--accent);
+    line-height: 1.6;
+  }
+  .highlight-box strong { color: var(--ink); display: block; margin-bottom: 4px; font-size: 12px; font-family: 'DM Mono', monospace; letter-spacing: 0.06em; text-transform: uppercase; }
+
+  /* ── FOOTER ── */
+  .site-footer {
+    border-top: 1px solid var(--border);
+    padding: 2rem;
+    text-align: center;
+    font-size: 12px;
+    color: var(--ink-muted);
+    font-family: 'DM Mono', monospace;
+  }
+  .site-footer a { color: var(--accent); text-decoration: none; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .hero h1 { animation: fadeUp 0.45s ease both; }
+  .abstract-box { animation: fadeUp 0.45s 0.1s ease both; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <a class="lab-wordmark" href="https://breitensteinlab.github.io/">Breitenstein Lab</a>
+  <nav class="nav-links">
+    <a href="le-et-al-2018.html">CD Annotation</a>
+    <a href="i-mab-pipeline.html" class="active">i-mAB Pipeline</a>
+    <a href="https://breitensteinlab.github.io/SLE-Compendium-2018/">SLE Compendium</a>
+    <a href="https://github.com/breitensteinlab" target="_blank">GitHub</a>
+  </nav>
+</header>
+
+<div class="hero">
+  <div class="breadcrumb">
+    <a href="le-et-al-2018.html">CD Annotation (Le et al. 2018)</a>
+    <span>›</span>
+    <span>i-mAB Pipeline</span>
+  </div>
+  <div class="preprint-badge">bioRxiv · 2018 · Machine Learning</div>
+  <h1><em>i-mAB</em> — Integrated machine learning pipeline for aberrant biomarker enrichment: characterizing clusters of differentiation in SLE</h1>
+  <div class="authors">Trang T. Le · Nigel O. Blackwood · Jaclyn N. Taroni · Weixuan Fu · Matthew K. Breitenstein &nbsp;·&nbsp; Perelman School of Medicine, University of Pennsylvania</div>
+  <div class="hero-actions">
+    <a class="btn btn-primary" href="https://breitensteinlab.github.io/i-mAB/" target="_blank">↗ i-mAB on GitHub Pages</a>
+    <a class="btn btn-ghost" href="le-et-al-2018.html">← CD Annotation Preprint</a>
+    <a class="btn btn-ghost" href="https://github.com/breitensteinlab" target="_blank">Source Code</a>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- PAGE-LEVEL TABS -->
+<div class="tabs-bar">
+  <button class="tab active" onclick="switchTab('overview', this)">Overview</button>
+  <button class="tab" onclick="switchTab('pipeline', this)">Pipeline</button>
+  <button class="tab" onclick="switchTab('findings', this)">Findings</button>
+  <button class="tab" onclick="switchTab('replication', this)">Replication</button>
+</div>
+
+<div class="main-wrap">
+  <main class="content">
+
+    <!-- ═══════════════════════════════════ OVERVIEW ═══ -->
+    <div id="panel-overview" class="tab-panel active">
+
+      <div class="abstract-box">
+        <p>Clusters of differentiation (CDs) are cell surface biomarkers shaped by upstream, interdependent biological features. Within a compendium of SLE patients, <strong>i-mAB</strong> applied relief-based machine learning (MultiSURF) to identify 681 predictive gene expression features, then used elastic net regularized regression to profile de novo genes affecting aberrant expression of <span class="kw">CD20</span>, <span class="kw kw-green">CD22</span>, and <span class="kw kw-warm">CD30</span> — three CDs with FDA-approved -mab therapeutics in B-lymphocyte malignancies and autoimmune disease. Key associations were replicated in an independent cell line model system.</p>
+      </div>
+
+      <section id="sec-motivation">
+        <div class="section-label">CD expression wheels — SLE Compendium</div>
+        <p>Each wheel shows the gene expression profile for CD20, CD22, and CD30 across the 681 MultiSURF-selected features from Figure 3 of the preprint. Spokes are sized by odds ratio magnitude; color indicates direction of association with aberrant CD expression. Hover a spoke to see gene details.</p>
+        <div id="cd-wheels-wrap" style="display:flex;gap:1.5rem;flex-wrap:wrap;justify-content:center;margin:1.5rem 0 2rem">
+          <!-- wheels rendered by JS below -->
+        </div>
+      </section>
+
+      <section id="sec-motivation-text">
+        <div class="section-label">Motivation</div>
+        <p>B-cell surface antigens are the molecular targets of a growing class of therapeutic monoclonal antibodies — drugs whose names end in <span class="kw kw-warm">-mab</span> (monoclonal antibody) or <span class="kw kw-warm">-lib</span> (library-derived). CD20, CD22, and CD30 were selected because each is characteristically overexpressed in B-lymphocyte hematologic malignancies and autoimmune disorders, and each has FDA-approved targeted therapies that have demonstrated trans-disease repositioning potential.</p>
+        <p>However, CDs are not isolated — they are shaped by upstream, correlated gene expression networks. Standard regression struggles under multicollinearity. The i-mAB pipeline was purpose-built to navigate this complexity, using algorithms robust to class imbalance and correlated predictors, to enrich the perspective of CD biology with de novo transcriptomic features.</p>
+      </section>
+
+      <section id="sec-data">
+        <div class="section-label">Data</div>
+        <p>The <span class="kw">SLE Compendium</span> aggregated human gene expression data from 6 GEO studies, normalized using SCAN (Affymetrix) and quantile normalization (Agilent/Illumina), scaled 0–1 per gene. The compendium contained 15,497 gene expression features across 1,576 patient observations — <strong>160 healthy controls</strong>, <strong>1,290 treatment-naïve SLE</strong>, and <strong>126 SLE with treatment exposure</strong>. Full preprocessing code is available via the Greene Lab GitHub.</p>
+      </section>
+
+    </div>
+
+    <!-- ═══════════════════════════════════ PIPELINE ═══ -->
+    <div id="panel-pipeline" class="tab-panel">
+      <section>
+        <div class="section-label">Four-stage pipeline</div>
+        <div class="pipeline-diagram">
+
+          <div class="pipeline-node">
+            <div class="node-icon stage-a">🗂️</div>
+            <div class="node-body">
+              <div class="node-tag">Stage A</div>
+              <div class="node-title">SLE Compendium assembly</div>
+              <div class="node-desc">Six GEO datasets aggregated, SCAN-normalized (Affymetrix) or quantile-normalized (Agilent/Illumina), and scaled 0–1 per gene. Healthy controls, treatment-naïve SLE, and treatment-exposed SLE retained. All CDs annotated as aberrant/non-aberrant using 20th/80th percentile two-tailed cutoffs (detailed in companion preprint).</div>
+              <div class="node-metric">📊 <strong>1,576</strong> observations · <strong>15,497</strong> gene features</div>
+            </div>
+          </div>
+
+          <div class="pipeline-node">
+            <div class="node-icon stage-b">🎯</div>
+            <div class="node-body">
+              <div class="node-tag">Stage B — Feature selection 1</div>
+              <div class="node-title">MultiSURF: identifying SLE-predictive genes</div>
+              <div class="node-desc"><span class="kw kw-purple">MultiSURF</span>, a relief-based algorithm robust to class imbalance and gene-gene interactions, was applied to 80% training data (CDs excluded to prevent circularity). Features were ranked by importance score; a heuristic threshold of 0.177 selected the most discriminating genes. TPOT (automated ML) validated the selected features via an optimized stacked pipeline of gradient boosting, decision tree, and Random Forest.</div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+                <div class="node-metric">🧬 <strong>681</strong> predictive genes selected</div>
+                <div class="node-metric">⚖️ Balanced accuracy <strong>0.822</strong></div>
+                <div class="node-metric">κ Kappa <strong>0.680</strong></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pipeline-node">
+            <div class="node-icon stage-c">🔬</div>
+            <div class="node-body">
+              <div class="node-tag">Stage C — Feature selection 2</div>
+              <div class="node-title">Elastic net: CD-specific gene expression profiles</div>
+              <div class="node-desc">Within the 681 stage-B features, <span class="kw kw-green">elastic net</span> (α=0.5, λ tuned by cross-validation) performed regularized logistic regression separately for each CD aberrance label. L1+L2 penalties simultaneously selected and shrunk correlated predictors. Retained genes were then independently tested via univariate logistic regression to report odds ratios and 95% CIs.</div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+                <div class="node-metric"><span style="color:var(--cd20)">CD20</span> k=<strong>53</strong> genes, D=0.0698</div>
+                <div class="node-metric"><span style="color:var(--cd22)">CD22</span> k=<strong>78</strong> genes, D=0.1351</div>
+                <div class="node-metric"><span style="color:var(--cd30)">CD30</span> k=<strong>137</strong> genes, D=0.1908</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pipeline-node">
+            <div class="node-icon stage-d">🌐</div>
+            <div class="node-body">
+              <div class="node-tag">Stages D–E</div>
+              <div class="node-title">Pathway enrichment + independent replication</div>
+              <div class="node-desc">GSEA (Reactome + GO molecular function) annotated CD-associated gene sets. An independent panel of 64 human-derived cell lines from the Human Protein Atlas provided disease-agnostic in silico replication via correlation testing of transcript counts against CD expression. P-values adjusted using Benjamini-Hochberg FDR.</div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+    </div>
+
+    <!-- ═══════════════════════════════════ FINDINGS ═══ -->
+    <div id="panel-findings" class="tab-panel">
+      <section>
+        <div class="section-label">CD-specific gene expression profiles</div>
+        <p>Select a CD to view its associated gene expression profile and key pathway enrichments from the i-mAB pipeline.</p>
+
+        <div class="cd-tabs">
+          <button class="cd-tab active" data-cd="CD20" onclick="switchCD('CD20', this)">CD20</button>
+          <button class="cd-tab" data-cd="CD22" onclick="switchCD('CD22', this)">CD22</button>
+          <button class="cd-tab" data-cd="CD30" onclick="switchCD('CD30', this)">CD30</button>
+        </div>
+
+        <!-- CD20 -->
+        <div id="cd-CD20" class="cd-panel active">
+          <div class="cd-header">
+            <div class="cd-badge cd20">CD20</div>
+            <div class="cd-meta">
+              <div class="cd-gene-name">MS4A1 · Membrane-spanning 4-domains subfamily A member 1</div>
+              <div class="cd-tagline">Target of rituximab, obinutuzumab, and other -mab therapies in B-cell malignancies and SLE.</div>
+            </div>
+          </div>
+          <div class="model-metrics">
+            <div class="metric-cell"><div class="metric-val" style="color:var(--cd20)">53</div><div class="metric-label">Associated genes</div></div>
+            <div class="metric-cell"><div class="metric-val" style="color:var(--cd20)">0.070</div><div class="metric-label">Deviance (D)</div></div>
+            <div class="metric-cell"><div class="metric-val" style="color:var(--cd20)">0.034</div><div class="metric-label">Lambda (λ)</div></div>
+          </div>
+          <div class="section-label" style="margin-bottom:0.5rem">Notable associated features</div>
+          <div class="gene-wrap">
+            <div class="gene-table-head"><span>Gene</span><span>Role / context</span><span>Direction</span><span>Signal</span></div>
+            <div class="gene-row"><span class="gene-name">TTN</span><span class="gene-desc">Titin — muscle structural protein; tissue development signal</span><span class="gene-dir dir-up">↑ Inc</span><span class="gene-pval">pathway</span></div>
+            <div class="gene-row"><span class="gene-name">MYH3</span><span class="gene-desc">Myosin heavy chain — muscle contraction pathway</span><span class="gene-dir dir-up">↑ Inc</span><span class="gene-pval">pathway</span></div>
+            <div class="gene-row"><span class="gene-name">SCN5A</span><span class="gene-desc">Sodium channel — membrane depolarization</span><span class="gene-dir dir-dn">↓ Dec</span><span class="gene-pval">pathway</span></div>
+            <div class="gene-row"><span class="gene-name">MARCKSL1</span><span class="gene-desc">Calmodulin binding; intracellular calcium receptor regulation</span><span class="gene-dir dir-up">↑ Inc</span><span class="gene-pval">pathway</span></div>
+            <div class="gene-row"><span class="gene-name">PDGFB</span><span class="gene-desc">Platelet-derived growth factor — enzyme-linked receptor signaling</span><span class="gene-dir dir-dn">↓ Dec</span><span class="gene-pval">pathway</span></div>
+            <div class="gene-row"><span class="gene-name">TP63</span><span class="gene-desc">Transcription factor — organ morphogenesis, epithelial differentiation</span><span class="gene-dir dir-up">↑ Inc</span><span class="gene-pval">pathway</span></div>
+          </div>
+          <div class="section-label" style="margin-bottom:0.5rem">Enriched pathways</div>
+          <div class="pathway-grid">
+            <div class="pathway-row"><span class="pathway-chip chip-cd20">CD20</span><div><div class="pathway-name">Calmodulin binding</div><div class="pathway-genes">SCN5A, USP6, TTN, MYH3, MARCKSL1 · q=1.14e-3</div></div></div>
+            <div class="pathway-row"><span class="pathway-chip chip-cd20">CD20</span><div><div class="pathway-name">Muscle contraction / organ morphogenesis</div><div class="pathway-genes">TTN, MYH3, CACNA1H, SCN5A · q=2.57e-2–4.79e-2</div></div></div>
+            <div class="pathway-row"><span class="pathway-chip chip-cd20">CD20</span><div><div class="pathway-name">Enzyme-linked receptor signaling</div><div class="pathway-genes">FOXH1, MEGF8, PDGFB, EFNB1, ATP6V1G2, GUCA1B · q=4.79e-2</div></div></div>
+          </div>
+          <p style="font-size:13px;color:var(--ink-muted)">Note: CD20-associated genes had no statistically significant correlations in the independent cell line replication after FDR correction, suggesting SLE-specific rather than general cell-type effects.</p>
+        </div>
+
+        <!-- CD22 -->
+        <div id="cd-CD22" class="cd-panel">
+          <div class="cd-header">
+            <div class="cd-badge cd22">CD22</div>
+            <div class="cd-meta">
+              <div class="cd-gene-name">SIGLEC2 · Sialic acid-binding Ig-like lectin 2</div>
+              <div class="cd-tagline">Target of epratuzumab and inotuzumab ozogamicin in B-cell malignancies and SLE.</div>
+            </div>
+          </div>
+          <div class="model-metrics">
+            <div class="metric-cell"><div class="metric-val" style="color:var(--cd22)">78</div><div class="metric-label">Associated genes</div></div>
+            <div class="metric-cell"><div class="metric-val" style="color:var(--cd22)">0.135</div><div class="metric-label">Deviance (D)</div></div>
+            <div class="metric-cell"><div class="metric-val" style="color:var(--cd22)">0.031</div><div class="metric-label">Lambda (λ)</div></div>
+          </div>
+          <div class="section-label" style="margin-bottom:0.5rem">Notable associated features</div>
+          <div class="gene-wrap">
+            <div class="gene-table-head"><span>Gene</span><span>Role / context</span><span>Direction</span><span>Signal</span></div>
+            <div class="gene-row"><span class="gene-name">BCL7A</span><span class="gene-desc">B-cell CLL/lymphoma 7A — SWI/SNF chromatin remodeling complex</span><span class="gene-dir dir-dn">↓ Dec</span><span class="gene-pval sig">p=1.69e-9 ✓</span></div>
+            <div class="gene-row"><span class="gene-name">STRBP</span><span class="gene-desc">Spermatid perinuclear RNA-binding protein — mechanosensory pathway</span><span class="gene-dir dir-dn">↓ Dec</span><span class="gene-pval sig">p=4.63e-8 ✓</span></div>
+            <div class="gene-row"><span class="gene-name">PHOSPHO1</span><span class="gene-desc">Phosphatase linked to bone mineralization; organophosphate metabolism</span><span class="gene-dir dir-dn">↓ Dec</span><span class="gene-pval sig">p=4.37e-2 ✓</span></div>
+            <div class="gene-row"><span class="gene-name">MAP2K6</span><span class="gene-desc">Mitogen-activated protein kinase kinase 6 — kinase activity</span><span class="gene-dir dir-up">↑ Inc</span><span class="gene-pval">pathway</span></div>
+            <div class="gene-row"><span class="gene-name">NRCAM</span><span class="gene-desc">Neuronal cell adhesion molecule — membrane organization</span><span class="gene-dir dir-dn">↓ Dec</span><span class="gene-pval">pathway</span></div>
+            <div class="gene-row"><span class="gene-name">TRAF3</span><span class="gene-desc">TNF receptor-associated factor 3 — immune response signaling</span><span class="gene-dir dir-dn">↓ Dec</span><span class="gene-pval">pathway</span></div>
+          </div>
+          <div class="section-label" style="margin-bottom:0.5rem">Enriched pathways</div>
+          <div class="pathway-grid">
+            <div class="pathway-row"><span class="pathway-chip chip-both">CD22 + CD30</span><div><div class="pathway-name">Phosphate-containing compound metabolic process</div><div class="pathway-genes">DLG1, DUSP15, EPHB4, MAP2K6, PHOSPHO1, RFK, TNK2, TYMP… · q=1.94e-3</div></div></div>
+            <div class="pathway-row"><span class="pathway-chip chip-cd22">CD22</span><div><div class="pathway-name">Immune response / Immune system process</div><div class="pathway-genes">DLG1, GPR183, HLA-DQB1, IKBKAP, MSH2, PGLYRP2, TRAF3, TRPM4… · q=2.00e-3</div></div></div>
+            <div class="pathway-row"><span class="pathway-chip chip-cd22">CD22</span><div><div class="pathway-name">Kinase activity</div><div class="pathway-genes">ACSL6, ABCB4, ATN1, BAG2, CEP68, EIF3L, IKBKAP · q=3.64e-2</div></div></div>
+          </div>
+        </div>
+
+        <!-- CD30 -->
+        <div id="cd-CD30" class="cd-panel">
+          <div class="cd-header">
+            <div class="cd-badge cd30">CD30</div>
+            <div class="cd-meta">
+              <div class="cd-gene-name">TNFRSF8 · TNF receptor superfamily member 8</div>
+              <div class="cd-tagline">Target of brentuximab vedotin (-mab-drug conjugate) in Hodgkin lymphoma and autoimmune disease.</div>
+            </div>
+          </div>
+          <div class="model-metrics">
+            <div class="metric-cell"><div class="metric-val" style="color:var(--cd30)">137</div><div class="metric-label">Associated genes</div></div>
+            <div class="metric-cell"><div class="metric-val" style="color:var(--cd30)">0.191</div><div class="metric-label">Deviance (D)</div></div>
+            <div class="metric-cell"><div class="metric-val" style="color:var(--cd30)">0.022</div><div class="metric-label">Lambda (λ)</div></div>
+          </div>
+          <div class="section-label" style="margin-bottom:0.5rem">Notable associated features</div>
+          <div class="gene-wrap">
+            <div class="gene-table-head"><span>Gene</span><span>Role / context</span><span>Direction</span><span>Signal</span></div>
+            <div class="gene-row"><span class="gene-name">NCOA2</span><span class="gene-desc">Nuclear receptor coactivator 2 — transcription factor activity, protein binding</span><span class="gene-dir dir-dn">↓ Dec</span><span class="gene-pval sig">p=7.00e-4 ✓</span></div>
+            <div class="gene-row"><span class="gene-name">PHOSPHO1</span><span class="gene-desc">Phosphatase; bone mineralization — shared with CD22 signal</span><span class="gene-dir dir-up">↑ Inc</span><span class="gene-pval sig">p=7.40e-3 ✓</span></div>
+            <div class="gene-row"><span class="gene-name">ATN1</span><span class="gene-desc">Atrophin-1 — protein domain-specific binding, kinase activity</span><span class="gene-dir dir-dn">↓ Dec</span><span class="gene-pval sig">p=1.71e-2 ✓</span></div>
+            <div class="gene-row"><span class="gene-name">HOXC4</span><span class="gene-desc">Homeobox C4 — transcription factor activity, nucleic acid binding</span><span class="gene-dir dir-up">↑ Inc</span><span class="gene-pval sig">p=3.34e-2 ✓</span></div>
+            <div class="gene-row"><span class="gene-name">BCL7A</span><span class="gene-desc">SWI/SNF chromatin remodeling — shared gene with CD22 profile</span><span class="gene-dir dir-dn">↓ Dec</span><span class="gene-pval">pathway</span></div>
+            <div class="gene-row"><span class="gene-name">TP63</span><span class="gene-desc">Transcription factor — intracellular signal transduction, transport</span><span class="gene-dir dir-up">↑ Inc</span><span class="gene-pval">pathway</span></div>
+          </div>
+          <div class="section-label" style="margin-bottom:0.5rem">Enriched pathways</div>
+          <div class="pathway-grid">
+            <div class="pathway-row"><span class="pathway-chip chip-both">CD22 + CD30</span><div><div class="pathway-name">Phosphate-containing compound metabolic process</div><div class="pathway-genes">ABHD14B, IRS1, MAP2K6, NDUFB1, OBSCN, PANK3, PHOSPHO1, RIPK3… · q=1.53e-2</div></div></div>
+            <div class="pathway-row"><span class="pathway-chip chip-cd30">CD30</span><div><div class="pathway-name">Negative regulation of nitrogen compound metabolic process</div><div class="pathway-genes">ATN1, BCL7A, NCOA2, NKX3-1, PDGFB, TP63, TRIM22… · q=1.38e-2</div></div></div>
+            <div class="pathway-row"><span class="pathway-chip chip-cd30">CD30</span><div><div class="pathway-name">Macromolecular / protein complex binding</div><div class="pathway-genes">NCOA2, IRS1, KLHL17, MAPRE3, PDGFB, PI4K2A, PTCH1, RIPK3… · q=1.43e-4</div></div></div>
+          </div>
+        </div>
+
+      </section>
+    </div>
+
+    <!-- ═══════════════════════════════════ REPLICATION ═══ -->
+    <div id="panel-replication" class="tab-panel">
+      <section>
+        <div class="section-label">In silico replication</div>
+        <p>To assess generalizability beyond SLE, CD-associated genes identified by elastic net were tested in 64 human-derived cell lines from the <a href="https://www.proteinatlas.org/" style="color:var(--accent)" target="_blank">Human Protein Atlas</a>, measuring correlation between transcript counts and CD expression. P-values were adjusted using the Benjamini-Hochberg procedure.</p>
+
+        <table class="rep-table">
+          <thead>
+            <tr>
+              <th>Gene</th>
+              <th>CD target</th>
+              <th>Correlation (95% CI)</th>
+              <th>t-stat</th>
+              <th>Adj. p-value</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>BCL7A</td>
+              <td><span class="cd-chip chip-inline-22">CD22</span></td>
+              <td class="corr">0.719 (0.575, 0.820)</td>
+              <td class="corr">8.14</td>
+              <td class="pval-sig">1.69e-9</td>
+            </tr>
+            <tr>
+              <td>STRBP</td>
+              <td><span class="cd-chip chip-inline-22">CD22</span></td>
+              <td class="corr">0.672 (0.510, 0.787)</td>
+              <td class="corr">7.14</td>
+              <td class="pval-sig">4.63e-8</td>
+            </tr>
+            <tr>
+              <td>PHOSPHO1</td>
+              <td><span class="cd-chip chip-inline-22">CD22</span></td>
+              <td class="corr">0.374 (0.152, 0.575)</td>
+              <td class="corr">3.27</td>
+              <td class="pval-sig">4.37e-2</td>
+            </tr>
+            <tr>
+              <td>NCOA2</td>
+              <td><span class="cd-chip chip-inline-30">CD30</span></td>
+              <td class="corr">0.534 (0.331, 0.689)</td>
+              <td class="corr">4.97</td>
+              <td class="pval-sig">7.00e-4</td>
+            </tr>
+            <tr>
+              <td>PHOSPHO1</td>
+              <td><span class="cd-chip chip-inline-30">CD30</span></td>
+              <td class="corr">0.464 (0.246, 0.637)</td>
+              <td class="corr">4.12</td>
+              <td class="pval-sig">7.40e-3</td>
+            </tr>
+            <tr>
+              <td>ATN1</td>
+              <td><span class="cd-chip chip-inline-30">CD30</span></td>
+              <td class="corr">0.430 (0.206, 0.611)</td>
+              <td class="corr">3.75</td>
+              <td class="pval-sig">1.71e-2</td>
+            </tr>
+            <tr>
+              <td>HOXC4</td>
+              <td><span class="cd-chip chip-inline-30">CD30</span></td>
+              <td class="corr">0.401 (0.173, 0.589)</td>
+              <td class="corr">3.45</td>
+              <td class="pval-sig">3.34e-2</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p>✓ indicates genes with statistically significant correlation in Human Protein Atlas cell line data after FDR correction. All CD20-associated genes (n=53) failed to replicate in this disease-agnostic system after correction, suggesting the CD20 transcriptomic signal may be more SLE-context-specific.</p>
+      </section>
+
+      <section>
+        <div class="section-label">PHOSPHO1 — a shared signal</div>
+        <p><span class="kw">PHOSPHO1</span> is a phosphatase linked to bone mineralization and phosphocholine/phosphoethanolamine metabolism. Its association with both <span class="kw kw-green">CD22</span> and <span class="kw kw-warm">CD30</span> expression — replicated in independent cell lines — implicates phosphate-containing compound metabolic pathways as a shared upstream biological context for these two B-cell surface markers. Future in vitro study is warranted to elucidate the mechanistic basis of phosphate signaling on aberrant CD22 and CD30 expression.</p>
+      </section>
+
+      <section>
+        <div class="section-label">Limitations &amp; generalizability</div>
+        <p>Aggregation of public datasets minimizes cost but may introduce cohort-level batch effects; a potential origin effect was observed for GSE49454/GSE61635 in the CD30 regression. A subset of "treatment-naïve" patients received maintenance immunosuppressive therapy, which may have slightly attenuated the transcriptome. Additionally, some proteins degrade rapidly while others persist — elevated transcript levels may be required to produce comparable bioavailable protein in some cases, complicating direct CD expression inference. Replication in tissue-specific environments and additional disease contexts is warranted.</p>
+      </section>
+    </div>
+
+  </main>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-card">
+      <h3>On this page</h3>
+      <a class="toc-link" href="#" onclick="switchTab('overview', document.querySelectorAll('.tab')[0]);return false">Overview</a>
+      <a class="toc-link" href="#" onclick="switchTab('pipeline', document.querySelectorAll('.tab')[1]);return false">Pipeline (4 stages)</a>
+      <a class="toc-link" href="#" onclick="switchTab('findings', document.querySelectorAll('.tab')[2]);return false">Findings by CD</a>
+      <a class="toc-link sub" href="#" onclick="switchTab('findings',document.querySelectorAll('.tab')[2]);switchCD('CD20',document.querySelectorAll('.cd-tab')[0]);return false">→ CD20</a>
+      <a class="toc-link sub" href="#" onclick="switchTab('findings',document.querySelectorAll('.tab')[2]);switchCD('CD22',document.querySelectorAll('.cd-tab')[1]);return false">→ CD22</a>
+      <a class="toc-link sub" href="#" onclick="switchTab('findings',document.querySelectorAll('.tab')[2]);switchCD('CD30',document.querySelectorAll('.cd-tab')[2]);return false">→ CD30</a>
+      <a class="toc-link" href="#" onclick="switchTab('replication', document.querySelectorAll('.tab')[3]);return false">In silico replication</a>
+    </div>
+
+    <div class="sidebar-card">
+      <h3>Key result</h3>
+      <div class="highlight-box">
+        <strong>Replicated associations</strong>
+        BCL7A and STRBP → CD22<br>
+        NCOA2, ATN1, HOXC4 → CD30<br>
+        PHOSPHO1 → both CD22 &amp; CD30
+      </div>
+    </div>
+
+    <div class="sidebar-card">
+      <h3>Resources</h3>
+      <a class="sidebar-link" href="https://breitensteinlab.github.io/i-mAB/" target="_blank">
+        <span class="sidebar-link-icon icon-purple">⚙️</span>i-mAB GitHub Pages
+      </a>
+      <a class="sidebar-link" href="le-et-al-2018.html">
+        <span class="sidebar-link-icon icon-blue">📄</span>CD Annotation preprint
+      </a>
+      <a class="sidebar-link" href="https://breitensteinlab.github.io/SLE-Compendium-2018/" target="_blank">
+        <span class="sidebar-link-icon icon-green">📊</span>SLE Compendium
+      </a>
+      <a class="sidebar-link" href="https://www.proteinatlas.org/" target="_blank">
+        <span class="sidebar-link-icon icon-warm">🔬</span>Human Protein Atlas
+      </a>
+    </div>
+
+    <div class="sidebar-card">
+      <h3>Methods used</h3>
+      <div style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--ink-soft)">
+        <div style="padding:6px 8px;background:var(--purple-light);border-radius:4px;font-family:'DM Mono',monospace;">MultiSURF</div>
+        <div style="padding:6px 8px;background:var(--accent-light);border-radius:4px;font-family:'DM Mono',monospace;">TPOT (AutoML)</div>
+        <div style="padding:6px 8px;background:var(--green-light);border-radius:4px;font-family:'DM Mono',monospace;">Elastic net (α=0.5)</div>
+        <div style="padding:6px 8px;background:var(--accent-warm-light);border-radius:4px;font-family:'DM Mono',monospace;">GSEA (Reactome/GO)</div>
+        <div style="padding:6px 8px;background:var(--surface-alt);border-radius:4px;font-family:'DM Mono',monospace;">BH FDR correction</div>
+      </div>
+    </div>
+
+    <div class="sidebar-card">
+      <h3>Cite this work</h3>
+      <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--ink-soft);line-height:1.6;background:var(--surface-alt);padding:10px;border-radius:4px;word-break:break-word;">
+        Le TT, Blackwood NO, Taroni JN, Fu W, Breitenstein MK. <em>Integrated machine learning pipeline for aberrant biomarker enrichment (i-mAB).</em> bioRxiv. 2018.
+      </div>
+    </div>
+  </aside>
+</div>
+
+<footer class="site-footer">
+  <p>© 2018 Le, Blackwood, Taroni, Fu &amp; Breitenstein · <a href="https://creativecommons.org/licenses/by-nc/4.0/">CC BY-NC 4.0</a> · Department of Biostatistics, Epidemiology &amp; Informatics · Perelman School of Medicine, University of Pennsylvania</p>
+</footer>
+
+<script>
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+function switchCD(cd, btn) {
+  document.querySelectorAll('.cd-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.cd-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('cd-' + cd).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+<script>
+// ── CD WHEEL DATA (from Figure 3 / elastic net results) ──────────────────
+// Each gene: [name, logOR_approx, direction (+1=increase, -1=decrease), replicated]
+// logOR derived from visual position in Figure 3; replicated = confirmed in cell lines
+const wheelData = {
+  CD20: {
+    color: '#1a4a8a', bg: '#e8eef8', label: 'MS4A1',
+    subtitle: 'Rituximab target · 53 associated genes',
+    genes: [
+      ['TTN',      1.15,  1, false],
+      ['MYH3',     0.95,  1, false],
+      ['SCN5A',    0.88, -1, false],
+      ['MARCKSL1', 0.72,  1, false],
+      ['PDGFB',    0.65, -1, false],
+      ['TP63',     0.83,  1, false],
+      ['FBXO6',    0.60,  1, false],
+      ['RUFY2',    0.55, -1, false],
+      ['IFI6',     0.50, -1, false],
+      ['USP6',     0.78,  1, false],
+      ['PSTK',     0.45,  1, false],
+      ['CACNA1H',  0.70, -1, false],
+      ['ATP6V1G2', 0.62,  1, false],
+      ['FOXH1',    0.58,  1, false],
+      ['GUCA1B',   0.52, -1, false],
+      ['DLG5',     0.48, -1, false],
+      ['MEGF8',    0.55, -1, false],
+      ['CELA1',    0.42,  1, false],
+      ['ZNF135',   0.40,  1, false],
+      ['SEMG1',    0.38,  1, false],
+    ]
+  },
+  CD22: {
+    color: '#1a6640', bg: '#e8f5ed', label: 'SIGLEC2',
+    subtitle: 'Epratuzumab target · 78 associated genes',
+    genes: [
+      ['BCL7A',    1.45, -1, true],
+      ['STRBP',    1.28, -1, true],
+      ['PHOSPHO1', 0.82, -1, true],
+      ['MAP2K6',   1.05,  1, false],
+      ['NRCAM',    0.92, -1, false],
+      ['TRAF3',    0.78, -1, false],
+      ['DLG1',     0.85,  1, false],
+      ['TRPM4',    0.72, -1, false],
+      ['TNK2',     0.88, -1, false],
+      ['EPHB4',    0.76,  1, false],
+      ['MSH2',     0.65, -1, false],
+      ['PDGFB',    0.80, -1, false],
+      ['MT2A',     0.60,  1, false],
+      ['IKBKAP',   0.68, -1, false],
+      ['GPR183',   0.55, -1, false],
+      ['CNTNAP2',  0.72, -1, false],
+      ['NRXN2',    0.58, -1, false],
+      ['HLA-DQB1', 0.50,  1, false],
+      ['PGLYRP2',  0.62, -1, false],
+      ['ATN1',     0.68, -1, false],
+      ['RFK',      0.55, -1, false],
+      ['EIF3L',    0.48,  1, false],
+    ]
+  },
+  CD30: {
+    color: '#b85c2a', bg: '#fdf0e8', label: 'TNFRSF8',
+    subtitle: 'Brentuximab target · 137 associated genes',
+    genes: [
+      ['NCOA2',    1.38, -1, true],
+      ['PHOSPHO1', 1.02,  1, true],
+      ['ATN1',     0.88, -1, true],
+      ['HOXC4',    0.78,  1, true],
+      ['BCL7A',    1.15, -1, false],
+      ['TP63',     0.95,  1, false],
+      ['IRS1',     0.85, -1, false],
+      ['MAP2K6',   0.80,  1, false],
+      ['PDGFB',    0.75,  1, false],
+      ['RIPK3',    0.70, -1, false],
+      ['TRIM22',    0.65,  1, false],
+      ['NKX3-1',   0.72,  1, false],
+      ['PSMB4',    0.60, -1, false],
+      ['ZBP1',     0.88,  1, false],
+      ['LAPTM5',   0.55,  1, false],
+      ['STAT2',    0.62,  1, false],
+      ['ADAR',     0.58, -1, false],
+      ['NOC2L',    0.52, -1, false],
+      ['SART1',    0.48, -1, false],
+      ['QARS',     0.50,  1, false],
+      ['NDUFB1',   0.45,  1, false],
+      ['XAF1',     0.68, -1, false],
+      ['OBSCN',    0.55, -1, false],
+      ['PANK3',    0.62, -1, false],
+    ]
+  }
+};
+
+function buildWheel(cdKey, data) {
+  const W = 300, CX = 150, CY = 150;
+  const genes = data.genes;
+  const n = genes.length;
+  const maxR = 115;
+  const minR = 28;
+  const maxOR = Math.max(...genes.map(g => g[1]));
+
+  // Tooltip div (shared)
+  let tooltip = document.getElementById('wheel-tooltip');
+  if (!tooltip) {
+    tooltip = document.createElement('div');
+    tooltip.id = 'wheel-tooltip';
+    tooltip.style.cssText = `position:fixed;background:#0f1117;color:white;font-family:'DM Mono',monospace;font-size:12px;padding:8px 12px;border-radius:5px;pointer-events:none;opacity:0;transition:opacity 0.15s;z-index:9999;line-height:1.5;max-width:200px`;
+    document.body.appendChild(tooltip);
+  }
+
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('viewBox', `0 0 ${W} ${W}`);
+  svg.setAttribute('width', W);
+  svg.setAttribute('height', W);
+  svg.style.cssText = 'overflow:visible;display:block;';
+
+  // Background circle
+  const bgCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+  bgCircle.setAttribute('cx', CX); bgCircle.setAttribute('cy', CY);
+  bgCircle.setAttribute('r', maxR + 8);
+  bgCircle.setAttribute('fill', data.bg);
+  bgCircle.setAttribute('stroke', data.color);
+  bgCircle.setAttribute('stroke-width', '1');
+  bgCircle.setAttribute('opacity', '0.5');
+  svg.appendChild(bgCircle);
+
+  // Reference rings
+  [0.33, 0.66, 1.0].forEach(frac => {
+    const ring = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    ring.setAttribute('cx', CX); ring.setAttribute('cy', CY);
+    ring.setAttribute('r', minR + (maxR - minR) * frac);
+    ring.setAttribute('fill', 'none');
+    ring.setAttribute('stroke', data.color);
+    ring.setAttribute('stroke-width', '0.5');
+    ring.setAttribute('opacity', '0.18');
+    svg.appendChild(ring);
+  });
+
+  genes.forEach((gene, i) => {
+    const [name, or, dir, replicated] = gene;
+    const angle = (i / n) * 2 * Math.PI - Math.PI / 2;
+    const r = minR + ((or / maxOR) * (maxR - minR));
+
+    const x2 = CX + r * Math.cos(angle);
+    const y2 = CY + r * Math.sin(angle);
+
+    // Spoke
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', CX); line.setAttribute('y1', CY);
+    line.setAttribute('x2', x2); line.setAttribute('y2', y2);
+    line.setAttribute('stroke', dir === 1 ? data.color : '#b85c2a');
+    line.setAttribute('stroke-width', replicated ? '3.5' : '1.8');
+    line.setAttribute('opacity', replicated ? '0.95' : '0.55');
+    line.setAttribute('stroke-linecap', 'round');
+    svg.appendChild(line);
+
+    // Endpoint dot
+    const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    dot.setAttribute('cx', x2); dot.setAttribute('cy', y2);
+    dot.setAttribute('r', replicated ? 5 : 3);
+    dot.setAttribute('fill', dir === 1 ? data.color : '#b85c2a');
+    dot.setAttribute('opacity', replicated ? '1' : '0.65');
+    dot.style.cursor = 'pointer';
+    svg.appendChild(dot);
+
+    // Invisible hit target for tooltip
+    const hit = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    hit.setAttribute('cx', x2); hit.setAttribute('cy', y2);
+    hit.setAttribute('r', 10);
+    hit.setAttribute('fill', 'transparent');
+    hit.style.cursor = 'pointer';
+    hit.addEventListener('mouseenter', (e) => {
+      tooltip.innerHTML = `<strong>${name}</strong><br>${dir === 1 ? '↑ Increase' : '↓ Decrease'} risk of aberrant ${cdKey}<br>OR ≈ ${Math.exp(or * 0.7).toFixed(2)}${replicated ? '<br>✓ Replicated in cell lines' : ''}`;
+      tooltip.style.opacity = '1';
+    });
+    hit.addEventListener('mousemove', (e) => {
+      tooltip.style.left = (e.clientX + 14) + 'px';
+      tooltip.style.top = (e.clientY - 10) + 'px';
+    });
+    hit.addEventListener('mouseleave', () => { tooltip.style.opacity = '0'; });
+    svg.appendChild(hit);
+
+    // Label for replicated genes or every ~4th gene
+    if (replicated || i % 4 === 0) {
+      const labelR = r + 14;
+      const lx = CX + labelR * Math.cos(angle);
+      const ly = CY + labelR * Math.sin(angle);
+      const lbl = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      lbl.setAttribute('x', lx); lbl.setAttribute('y', ly);
+      lbl.setAttribute('text-anchor', lx < CX - 5 ? 'end' : lx > CX + 5 ? 'start' : 'middle');
+      lbl.setAttribute('dominant-baseline', 'middle');
+      lbl.setAttribute('font-family', "'DM Mono', monospace");
+      lbl.setAttribute('font-size', replicated ? '10' : '9');
+      lbl.setAttribute('font-weight', replicated ? '600' : '400');
+      lbl.setAttribute('fill', replicated ? data.color : '#7a7f8e');
+      lbl.textContent = name;
+      svg.appendChild(lbl);
+    }
+  });
+
+  // Center label
+  const centerLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+  centerLabel.setAttribute('x', CX); centerLabel.setAttribute('y', CY - 6);
+  centerLabel.setAttribute('text-anchor', 'middle');
+  centerLabel.setAttribute('font-family', "'DM Serif Display', serif");
+  centerLabel.setAttribute('font-size', '20');
+  centerLabel.setAttribute('font-weight', '700');
+  centerLabel.setAttribute('fill', data.color);
+  centerLabel.textContent = cdKey;
+  svg.appendChild(centerLabel);
+
+  const centerSub = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+  centerSub.setAttribute('x', CX); centerSub.setAttribute('y', CY + 11);
+  centerSub.setAttribute('text-anchor', 'middle');
+  centerSub.setAttribute('font-family', "'DM Mono', monospace");
+  centerSub.setAttribute('font-size', '8');
+  centerSub.setAttribute('fill', '#7a7f8e');
+  centerSub.textContent = data.label;
+  svg.appendChild(centerSub);
+
+  // Wrapper card
+  const wrap = document.createElement('div');
+  wrap.style.cssText = `background:white;border:1px solid #ddd9d2;border-radius:6px;padding:1rem 1rem 0.75rem;display:flex;flex-direction:column;align-items:center;gap:0.5rem;flex:1;min-width:260px;max-width:320px`;
+
+  const title = document.createElement('div');
+  title.style.cssText = `font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#7a7f8e;text-align:center`;
+  title.textContent = data.subtitle;
+  wrap.appendChild(svg);
+  wrap.appendChild(title);
+
+  // Mini legend
+  const leg = document.createElement('div');
+  leg.style.cssText = `display:flex;gap:12px;font-family:'DM Mono',monospace;font-size:10px;color:#7a7f8e;justify-content:center;flex-wrap:wrap;padding-top:4px;border-top:1px solid #f0ede8;width:100%;margin-top:4px`;
+  leg.innerHTML = `<span style="display:flex;align-items:center;gap:4px"><span style="width:14px;height:2px;background:${data.color};display:inline-block;border-radius:1px"></span>↑ Inc</span><span style="display:flex;align-items:center;gap:4px"><span style="width:14px;height:2px;background:#b85c2a;display:inline-block;border-radius:1px"></span>↓ Dec</span><span style="display:flex;align-items:center;gap:4px"><span style="width:6px;height:6px;border-radius:50%;background:#555;display:inline-block"></span>Replicated</span>`;
+  wrap.appendChild(leg);
+
+  return wrap;
+}
+
+const container = document.getElementById('cd-wheels-wrap');
+if (container) {
+  ['CD20', 'CD22', 'CD30'].forEach(cd => {
+    container.appendChild(buildWheel(cd, wheelData[cd]));
+  });
+}
+</script>
+</body>
+</html>
